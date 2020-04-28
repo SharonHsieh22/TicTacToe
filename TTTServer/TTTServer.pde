@@ -1,6 +1,7 @@
 import processing.net.*;
 
-Client myClient;
+Server myServer;
+
 int[][] grid;
 
 void setup() {
@@ -9,18 +10,18 @@ void setup() {
   strokeWeight(3);
   textAlign(CENTER, CENTER);
   textSize(50);
-  myClient = new Client(this, "127.0.0.1", 1234);
+  myServer = new Server(this, 1234);
 }
 
 void draw() {
   background(255);
-
+  
   stroke(0);
   line(0, 100, 300, 100);
   line(0, 200, 300, 200);
   line(100, 0, 100, 300);
   line(200, 0, 200, 300);
-
+  
   int row = 0;
   int col = 0;
   while (row < 3) {
@@ -34,30 +35,31 @@ void draw() {
 }
 
 void drawXO(int row, int col) {
-  pushMatrix();
-  translate(row*100, col*100);
-  if (grid[row][col] == 1) {
-    fill(255);
-    ellipse(50, 50, 90, 90);
-  } else if (grid[row][col] == 2) {
-    line(10, 10, 90, 90);
-    line(90, 10, 10, 90);
-  }
-  popMatrix();
-
-  if (myClient.available() > 0) {
+ pushMatrix();
+ translate(row*100, col*100);
+ if(grid[row][col] == 1) {
+   fill(255);
+   ellipse(50, 50, 90, 90);
+ } else if (grid[row][col] == 2) {
+   line(10, 10, 90, 90);
+   line(90, 10, 10, 90);
+ }
+ popMatrix();
+ 
+   Client myClient = myServer.available();
+  if(myClient != null) {
     String incoming = myClient.readString(); 
     int r = int(incoming.substring(0, 1));
     int c = int(incoming.substring(2, 3));
-    grid[r][c] = 2;
+    grid[r][c] = 1;
   }
 }
 
 void mouseReleased() {
-  int row = mouseX/100;
-  int col = mouseY/100;
-  if (grid[row][col] == 0) {
-    myClient.write(row + "," + col);
-    grid[row][col] = 1;
-  }
+ int row = mouseX/100;
+ int col = mouseY/100;
+ if(grid[row][col] == 0) {
+   myServer.write(row + "," + col);
+   grid[row][col] = 2;
+}
 }
