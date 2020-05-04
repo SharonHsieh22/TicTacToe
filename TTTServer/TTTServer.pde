@@ -1,5 +1,9 @@
 import processing.net.*;
 
+color blue = #00E8FF;
+color red = #FF0059;
+boolean myTurn = true;
+
 Server myServer;
 
 int[][] grid;
@@ -14,7 +18,8 @@ void setup() {
 }
 
 void draw() {
-  background(255);
+  if(myTurn) background(blue);
+  else background(red);
   
   stroke(0);
   line(0, 100, 300, 100);
@@ -22,15 +27,10 @@ void draw() {
   line(100, 0, 100, 300);
   line(200, 0, 200, 300);
   
-  int row = 0;
-  int col = 0;
-  while (row < 3) {
-    drawXO(row, col);
-    col++;    
-    if (col == 3) {
-      col = 0;
-      row++;
-    }
+  for(int row = 0; row < 3; row++) {
+   for(int col = 0; col < 3; col++) {
+    drawXO(row, col); 
+   }
   }
 }
 
@@ -38,7 +38,7 @@ void drawXO(int row, int col) {
  pushMatrix();
  translate(row*100, col*100);
  if(grid[row][col] == 1) {
-   fill(255);
+   noFill();
    ellipse(50, 50, 90, 90);
  } else if (grid[row][col] == 2) {
    line(10, 10, 90, 90);
@@ -52,14 +52,16 @@ void drawXO(int row, int col) {
     int r = int(incoming.substring(0, 1));
     int c = int(incoming.substring(2, 3));
     grid[r][c] = 1;
+    myTurn = true;
   }
 }
 
 void mouseReleased() {
  int row = mouseX/100;
  int col = mouseY/100;
- if(grid[row][col] == 0) {
+ if(myTurn && grid[row][col] == 0) {
    myServer.write(row + "," + col);
    grid[row][col] = 2;
+   myTurn = false;
 }
 }
